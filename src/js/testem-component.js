@@ -64,9 +64,9 @@ gpii.testem.wrapSecondaryEvent = function (that, event) {
 /**
  *
  * Listen for an event once, resolve a promise, and then stop listening.  Also stops listening if the returned promise
- * is resolved/reject externally (for example, by the timeout wrapper.
+ * is resolved/reject externally (for example, by the timeout wrapper).
  *
- * Only works with Fluid Promises, see: http://docs.fluidproject.org/infusion/development/PromisesAPI.html
+ * Returns a Fluid promise, see: http://docs.fluidproject.org/infusion/development/PromisesAPI.html
  *
  * @param {Object} that - The component itself.
  * @param {String} event - The event to wrap with a promise.
@@ -128,7 +128,7 @@ gpii.testem.getTestemOptions = function (that) {
 gpii.testem.generateRimrafWrapper = function (path, rimrafOptions) {
     return function () {
         var rimrafPromise = fluid.promise();
-        rimraf(path, rimrafOptions, function (rimrafError) {
+        rimraf(path, fluid.copy(rimrafOptions), function (rimrafError) {
             if (rimrafError) {
                 rimrafPromise.reject(rimrafError);
             }
@@ -209,7 +209,7 @@ gpii.testem.cleanupDir = function (cleanupDef, rimrafOptions) {
                     promise.resolve();
                 }
                 else {
-                    rimraf(resolvedPath, rimrafOptions, function (error) {
+                    rimraf(resolvedPath, fluid.copy(rimrafOptions), function (error) {
                         if (error) {
                             fluid.log(fluid.logLevel.ERROR, "Error removing ", cleanupDef.name, " content:", error);
                         }
