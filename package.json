@@ -26,7 +26,7 @@
     "dependencies": {
         "glob": "7.1.6",
         "gpii-express": "1.0.15",
-        "infusion": "3.0.0-dev.20191123T235705Z.4cd1b9d90.FLUID-6426",
+        "infusion": "3.0.0-dev.20191220T163226Z.db83ce0ef.FLUID-6145",
         "istanbul-lib-instrument": "3.3.0",
         "mkdirp": "0.5.1",
         "node-jqunit": "1.1.8",
