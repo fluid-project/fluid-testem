@@ -11,7 +11,7 @@
             "options": {
                 "overrideConfig": {
                     "rules": {
-                        "no-redeclare": false
+                        "no-redeclare": 0
                     }
                 }
             }
