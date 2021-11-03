@@ -361,7 +361,7 @@ fluid.testem.constructProxies = function (sourceDirs, contentDirs, additionalPro
 
 fluid.defaults("fluid.testem.base", {
     gradeNames:  ["fluid.component"],
-    coveragePort: 7000,
+    coveragePort: 7003,
     coverageUrl: {
         expander: {
             funcName: "fluid.stringTemplate",

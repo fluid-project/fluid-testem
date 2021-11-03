@@ -32,7 +32,7 @@ fluid.defaults("fluid.testem.middleware.coverageClient", {
     path:    "/client",
     baseClientSource: "%fluid-testem/src/js/client/coverageSender.js",
     clientInvokerTemplatePath: "%fluid-testem/src/templates/coverage-client-invoker.handlebars" ,
-    coveragePort: 7000,
+    coveragePort: 7003,
     hookTestem: true,
     hookQUnit: false,
     exposeCallback: false,
