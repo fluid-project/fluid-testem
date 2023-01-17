@@ -264,6 +264,7 @@ fluid.testem.cleanup = function (stage, cleanupDefs, rimrafOptions) {
     return togo;
 };
 
+/* eslint-disable jsdoc/require-returns-check */
 /**
  *
  * Generate a unique subdirectory path based on a supplied prefix and suffix.
@@ -273,6 +274,7 @@ fluid.testem.cleanup = function (stage, cleanupDefs, rimrafOptions) {
  * @param {String} suffix - A "suffix" that will be appended to the end of the filename.
  * @return {String} - The full path to the unique subdirectory.
  */
+/* eslint-enable jsdoc/require-returns-check */
 fluid.testem.generateUniqueDirName = function (basePath, prefix, suffix) {
     try {
         var resolvedBasePath = fluid.testem.resolveFluidModulePathSafely(basePath);

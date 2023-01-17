@@ -18,6 +18,7 @@ fluid.testem.resolvePathSafely = function (basePath, subPath) {
     }
 };
 
+/* eslint-disable jsdoc/require-returns-check */
 /**
  *
  * Another wrapper to ensure that invalid or missing paths do not break the overall lifecycle of a testem component.
@@ -25,6 +26,7 @@ fluid.testem.resolvePathSafely = function (basePath, subPath) {
  * @param {String} path - The path to resolve.
  * @return {String} - The resolved path.
  */
+/* eslint-enable jsdoc/require-returns-check */
 fluid.testem.resolveFluidModulePathSafely = function (path) {
     try {
         var resolvedPath = fluid.module.resolvePath(path);
