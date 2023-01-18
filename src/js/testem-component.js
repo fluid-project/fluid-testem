@@ -125,16 +125,10 @@ fluid.testem.getTestemOptions = function (that) {
 
 fluid.testem.generateRimrafWrapper = function (path, rimrafOptions) {
     return function () {
-        var rimrafPromise = fluid.promise();
-        rimraf(path, fluid.copy(rimrafOptions), function (rimrafError) {
-            if (rimrafError) {
-                rimrafPromise.reject(rimrafError);
-            }
-            else {
-                rimrafPromise.resolve();
-            }
-        });
-        return rimrafPromise;
+        var fluidPromise = fluid.promise();
+        var rimrafPromise = rimraf(path, fluid.copy(rimrafOptions));
+        rimrafPromise.then(fluidPromise.resolve, fluidPromise.reject);
+        return fluidPromise;
     };
 };
 
@@ -207,13 +201,12 @@ fluid.testem.cleanupDir = function (cleanupDef, rimrafOptions) {
                     promise.resolve();
                 }
                 else {
-                    rimraf(resolvedPath, fluid.copy(rimrafOptions), function (error) {
-                        if (error) {
-                            fluid.log(fluid.logLevel.WARN, "Error removing ", cleanupDef.name, " content:", error);
-                        }
-                        else {
-                            fluid.log("Removed ", cleanupDef.name, " content...");
-                        }
+                    var rimrafPromise =  rimraf(resolvedPath, fluid.copy(rimrafOptions));
+                    rimrafPromise.then(function () {
+                        fluid.log("Removed ", cleanupDef.name, " content...");
+                        promise.resolve();
+                    }, function (error) {
+                        fluid.log(fluid.logLevel.WARN, "Error removing ", cleanupDef.name, " content:", error);
                         promise.resolve();
                     });
                 }

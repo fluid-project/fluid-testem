@@ -73,9 +73,8 @@ fluid.tests.testem.runner.runSingleTest = function (that, testDef) {
                             var promise = fluid.promise();
                             var resolvedPathToRemove = fluid.module.resolvePath(dirToRemove);
                             fluid.log("Removing dir '", resolvedPathToRemove, "'...");
-                            rimraf(resolvedPathToRemove, function (error) {
-                                error ? promise.reject(error) : promise.resolve();
-                            });
+                            var rimRafPromise = rimraf(resolvedPathToRemove);
+                            rimRafPromise.then(promise.resolve, promise.reject);
                             return promise;
                         });
                     }
