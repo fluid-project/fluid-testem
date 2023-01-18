@@ -26,7 +26,7 @@
     "homepage": "https://github.com/fluid-project/fluid-testem/",
     "dependencies": {
         "glob": "8.1.0",
-        "fluid-express": "1.0.18",
+        "fluid-express": "1.0.19",
         "infusion": "4.6.0",
         "istanbul-lib-instrument": "5.2.1",
         "mkdirp": "2.1.3",
