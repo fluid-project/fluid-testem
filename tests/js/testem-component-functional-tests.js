@@ -70,12 +70,9 @@ fluid.tests.testem.runner.runSingleTest = function (that, testDef) {
                     // Needed to avoid problems with "failure" tests.
                     if (dirToRemove) {
                         cleanupPromises.push(function () {
-                            var promise = fluid.promise();
                             var resolvedPathToRemove = fluid.module.resolvePath(dirToRemove);
                             fluid.log("Removing dir '", resolvedPathToRemove, "'...");
-                            var rimRafPromise = rimraf(resolvedPathToRemove);
-                            rimRafPromise.then(promise.resolve, promise.reject);
-                            return promise;
+                            return rimraf(resolvedPathToRemove);
                         });
                     }
                 });

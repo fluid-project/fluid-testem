@@ -125,10 +125,7 @@ fluid.testem.getTestemOptions = function (that) {
 
 fluid.testem.generateRimrafWrapper = function (path, rimrafOptions) {
     return function () {
-        var fluidPromise = fluid.promise();
-        var rimrafPromise = rimraf(path, fluid.copy(rimrafOptions));
-        rimrafPromise.then(fluidPromise.resolve, fluidPromise.reject);
-        return fluidPromise;
+        return rimraf(path, fluid.copy(rimrafOptions));
     };
 };
 
