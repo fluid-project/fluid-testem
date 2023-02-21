@@ -18,7 +18,7 @@ var testemComponent = fluid.testem.instrumentation({
         node_modules: "%fluid-testem/node_modules"
     },
     testemOptions: {
-        skip: "Safari,PhantomJS"
+        skip: "Safari,PhantomJS,IE,Brave,Opera"
     },
     coveragePort: 7017
 });
