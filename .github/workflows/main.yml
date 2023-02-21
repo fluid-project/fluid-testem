@@ -19,10 +19,10 @@ jobs:
       HEADLESS: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -31,6 +31,13 @@ jobs:
 
       - name: Node Tests
         run: xvfb-run --auto-servernum npm test
+
+      - name: Archive Code Coverage Report
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: Code Coverage Report
+          path: reports/
 
       - name: Cleanup after xvfb
         uses: bcomnes/cleanup-xvfb@v1
