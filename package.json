@@ -11,7 +11,7 @@
     },
     "scripts": {
         "lint": "fluid-lint-all",
-        "pretest": "rimraf coverage/* reports/* instrumented/*",
+        "pretest": "rimraf coverage reports instrumented",
         "test": "nyc node tests/all-tests.js"
     },
     "repository": {
