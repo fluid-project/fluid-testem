@@ -310,11 +310,6 @@ fluid.testem.stopServer = function (that) {
     }
 };
 
-// An expander to allow us to toggle "HEADLESS" mode with an environment variable.
-fluid.testem.constructBrowserArgs = function (browserArgs, headlessBrowserArgs) {
-    return (process.env.HEADLESS && headlessBrowserArgs) || browserArgs;
-};
-
 /**
  *
  * Construct a full set of Testem proxy configuration options based on component options.
@@ -415,25 +410,13 @@ fluid.defaults("fluid.testem.base", {
             "--disable-new-zip-unpacker"
         ]
     },
-    "headlessBrowserArgs": {
-        "Firefox": [
-            "--no-remote",
-            "--headless"
-        ],
-        // See this ticket for details on the minimum options required to get "headless" Chrome working: https://github.com/testem/testem/issues/1106#issuecomment-298841383
-        "Chrome": [
-            "--disable-gpu",
-            "--headless",
-            "--remote-debugging-port=9222"
-        ]
-    },
     testemOptions: {
         // The timeout options and Chrome browser args are workaround to minimize "browser disconnect" errors.
         // https://github.com/testem/testem/issues/777
         browser_disconnect_timeout: 300, // Five minutes
         browser_start_timeout:      300,
         timeout: 300,
-        browser_args: "@expand:fluid.testem.constructBrowserArgs({that}.options.browserArgs, {that}.options.headlessBrowserArgs)",
+        browser_args: "{that}.options.browserArgs",
         framework:   "qunit",
         tap_quiet_logs: true,
         report_file: {
