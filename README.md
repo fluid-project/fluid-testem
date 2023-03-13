@@ -69,13 +69,13 @@ For more information, check out the documentation links below:
 You can run the tests using the command `npm test`.  You are not required to have Testem installed globally to run the
 tests.
 
-## A Warning about Internet Explorer 11
+## Running the tests in "Headless" Mode
 
-There is currently [a bug in Testem](https://github.com/testem/testem/issues/1184) that results in IE11 windows opened
-by Testem not being closed when the tests finish.  Until that bug is resolved, if you are running tests from Windows,
-you will need to close any open IE11 windows before launching the tests.
+The default testem component provided by this package supports an environment variable that can be used to only run
+tests in a subset of available browsers. (See [the component documentation](docs/testem-component.md) for more details).
+Setting the `TESTEM_ENVIRONMENT` environment variable to `"headless"` will run tests using only headless Chrome and
+Firefox.
 
-## Running (Chrome) in "Headless" Mode
-
-If your system has [a new enough version of Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome),
-you can optionally run the tests in "headless" mode by setting the `HEADLESS` environment variable to a non-empty value.
+Note: because of [a bug in Testem](https://github.com/testem/testem/issues/1377), tests that use Firefox require manual
+input to complete on Windows.  Setting the `TESTEM_ENVIRONMENT` environment variable to `"headless"` will allow tests to
+run unattended on Windows.

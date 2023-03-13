@@ -38,8 +38,9 @@ fluid.testem.handleTestemLifecycleEvent = function (componentEvent, testemCallba
             fluid.log("Successfully reached the end of promise chain. Firing testem callback.");
             testemCallback();
         },
-        function () {
-            fluid.log("Promise chain terminated by promise rejection. Firing testem callback.");
+        function (error) {
+            fluid.log("Promise chain terminated by promise rejection:\n" + error);
+            fluid.log("Firing testem callback.");
             testemCallback();
         }
     );
@@ -346,8 +347,44 @@ fluid.testem.constructProxies = function (sourceDirs, contentDirs, additionalPro
     return proxies;
 };
 
+fluid.testem.detectEnvironment = function (toMatch) {
+    var environmentValue = process.env.TESTEM_ENVIRONMENT;
+    if (!environmentValue) { return false; };
+
+    var toMatchRegexp = new RegExp(toMatch, "i");
+    return environmentValue.match(toMatchRegexp);
+};
+
+fluid.testem.detectEnvironment.minimalHeadless = function () {
+    return fluid.testem.detectEnvironment("headless");
+};
+
+fluid.testem.detectEnvironment.minimalHeaded = function () {
+    return fluid.testem.detectEnvironment("headed");
+};
+
+fluid.contextAware.makeChecks({
+    // predefined "environments"
+    "fluid.testem.detectEnvironment.minimalHeadless": "fluid.testem.detectEnvironment.minimalHeadless",
+    "fluid.testem.detectEnvironment.minimalHeaded": "fluid.testem.detectEnvironment.minimalHeaded"
+});
+
+fluid.defaults("fluid.testem.minimalHeadless", {
+    gradeNames: ["fluid.component"],
+    testemOptions: {
+        launch: "Headless Firefox,Headless Chrome"
+    }
+});
+
+fluid.defaults("fluid.testem.minimalHeaded", {
+    gradeNames: ["fluid.component"],
+    testemOptions: {
+        launch: "Firefox,Chrome"
+    }
+});
+
 fluid.defaults("fluid.testem.base", {
-    gradeNames:  ["fluid.component"],
+    gradeNames:  ["fluid.component", "fluid.contextAware"],
     coveragePort: 7003,
     coverageUrl: {
         expander: {
@@ -355,6 +392,22 @@ fluid.defaults("fluid.testem.base", {
             args:     ["http://localhost:%port", { port: "{that}.options.coveragePort" }]
         }
     },
+
+    contextAwareness: {
+        environment: {
+            checks: {
+                minimalHeaded: {
+                    contextValue: "{fluid.testem.detectEnvironment.minimalHeaded}",
+                    gradeNames: ["fluid.testem.minimalHeaded"]
+                },
+                minimalHeadless: {
+                    contextValue: "{fluid.testem.detectEnvironment.minimalHeadless}",
+                    gradeNames: ["fluid.testem.minimalHeadless"]
+                }
+            }
+        }
+    },
+
     cwd: process.cwd(),
     mergePolicy: {
         cleanup: "nomerge"
@@ -631,8 +684,7 @@ fluid.defaults("fluid.testem.instrumentation", {
     }
 });
 
-// The default grade, which instruments source, collects coverage data, and generates reports.
-fluid.defaults("fluid.testem", {
+fluid.defaults("fluid.testem.coverageReporting", {
     gradeNames:  ["fluid.testem.instrumentation"],
     reports: ["text-summary", "html", "json-summary"],
     cleanup: {
@@ -653,6 +705,31 @@ fluid.defaults("fluid.testem", {
                 cwd:         "{fluid.testem}.options.cwd",
                 reportsDir:  "{fluid.testem}.options.reportsDir",
                 reports:     "{fluid.testem}.options.reports"
+            }
+        }
+    }
+});
+
+
+fluid.testem.enableCoverage = function () {
+    return process.env.DISABLE_COVERAGE ? false : true;
+};
+
+fluid.contextAware.makeChecks({
+    // controls for instrumentation + coverage collection as well as coverage reporting.
+    "fluid.testem.enableCoverage": "fluid.testem.enableCoverage"
+});
+
+// The default grade, which supports an environment variable that disables instrumentation, coverage collection, and reporting.
+fluid.defaults("fluid.testem", {
+    gradeNames:  ["fluid.testem.base"],
+    contextAwareness: {
+        coverage: {
+            checks: {
+                enableCoverage: {
+                    contextValue: "{fluid.testem.enableCoverage}",
+                    gradeNames: ["fluid.testem.coverageReporting"]
+                }
             }
         }
     }
