@@ -150,22 +150,21 @@ fluid.defaults("fluid.tests.testem.runner", {
                 }
             }
         },
-        // TODO: Fix this
-        // instrumentationTiming: {
-        //     name:       "Confirm that long-running instrumentation does not interfere with coverage collection...",
-        //     configFile: "../testem-fixtures/coverage-fixtures/testem-instrumentation-timing.js",
-        //     hasCoverage: true,
-        //     expectedCoverage: {
-        //         total: {
-        //             branches: {
-        //                 total: 2,
-        //                 covered: 2,
-        //                 skipped: 0,
-        //                 pct: 100
-        //             }
-        //         }
-        //     }
-        // },
+        instrumentationTiming: {
+            name:       "Confirm that long-running instrumentation does not interfere with coverage collection...",
+            configFile: "../testem-fixtures/coverage-fixtures/testem-instrumentation-timing.js",
+            hasCoverage: true,
+            expectedCoverage: {
+                total: {
+                    branches: {
+                        total: 2,
+                        covered: 2,
+                        skipped: 0,
+                        pct: 100
+                    }
+                }
+            }
+        },
         failure: {
             name:          "Running a suite of tests with gross configuration errors...",
             configFile:    "../testem-fixtures/failure-modes/testem-failure-modes.js",
