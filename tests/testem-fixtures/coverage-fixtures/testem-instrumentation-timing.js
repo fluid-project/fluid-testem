@@ -41,7 +41,7 @@ fluid.tests.testem.instrumentationTiming.instrumentSlowly = function (that) {
 };
 
 fluid.defaults("fluid.tests.testem.instrumentationTiming.harness", {
-    gradeNames: ["fluid.tests.testem.harness"],
+    gradeNames: ["fluid.tests.testem.harness", "fluid.testem.coverageReporting"],
     instrumentationDelay: 5000,
     testPages:   ["complete.html"],
     cwd: __dirname, // required because we are working outside of our package root.
@@ -50,6 +50,16 @@ fluid.defaults("fluid.tests.testem.instrumentationTiming.harness", {
             priority: "after:cleanup",
             funcName: "fluid.tests.testem.instrumentationTiming.instrumentSlowly",
             args:     ["{that}"]
+        }
+    },
+    false: false,
+    contextAwareness: {
+        coverage: {
+            checks: {
+                enableCoverage: {
+                    contextValue: "{fluid.tests.testem.instrumentationTiming.harness.options.false}"
+                }
+            }
         }
     }
 });

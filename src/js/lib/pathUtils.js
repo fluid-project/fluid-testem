@@ -20,6 +20,7 @@ fluid.testem.extractLastPathSegment = function (rawPath, leader) {
     return fluid.testem.forceLeadingSlash(path.basename(resolvedPath), leader);
 };
 
+/* eslint-disable jsdoc/require-returns-check */
 /**
  *
  * Ensure that the path segment is preceded by a leader (defaults to a leading slash).
@@ -29,6 +30,7 @@ fluid.testem.extractLastPathSegment = function (rawPath, leader) {
  * @return {String} - The path, updated as needed to ensure that it begins with `leader`.
  *
  */
+/* eslint-enable jsdoc/require-returns-check */
 fluid.testem.forceLeadingSlash = function (rawPath, leader) {
     leader = (leader || leader === "") ? leader : "/";
     if (typeof rawPath === "string") {

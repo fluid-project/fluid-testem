@@ -38,8 +38,9 @@ fluid.testem.handleTestemLifecycleEvent = function (componentEvent, testemCallba
             fluid.log("Successfully reached the end of promise chain. Firing testem callback.");
             testemCallback();
         },
-        function () {
-            fluid.log("Promise chain terminated by promise rejection. Firing testem callback.");
+        function (error) {
+            fluid.log("Promise chain terminated by promise rejection:\n" + error);
+            fluid.log("Firing testem callback.");
             testemCallback();
         }
     );
@@ -125,16 +126,7 @@ fluid.testem.getTestemOptions = function (that) {
 
 fluid.testem.generateRimrafWrapper = function (path, rimrafOptions) {
     return function () {
-        var rimrafPromise = fluid.promise();
-        rimraf(path, fluid.copy(rimrafOptions), function (rimrafError) {
-            if (rimrafError) {
-                rimrafPromise.reject(rimrafError);
-            }
-            else {
-                rimrafPromise.resolve();
-            }
-        });
-        return rimrafPromise;
+        return rimraf(path, fluid.copy(rimrafOptions));
     };
 };
 
@@ -207,13 +199,12 @@ fluid.testem.cleanupDir = function (cleanupDef, rimrafOptions) {
                     promise.resolve();
                 }
                 else {
-                    rimraf(resolvedPath, fluid.copy(rimrafOptions), function (error) {
-                        if (error) {
-                            fluid.log(fluid.logLevel.WARN, "Error removing ", cleanupDef.name, " content:", error);
-                        }
-                        else {
-                            fluid.log("Removed ", cleanupDef.name, " content...");
-                        }
+                    var rimrafPromise =  rimraf(resolvedPath, fluid.copy(rimrafOptions));
+                    rimrafPromise.then(function () {
+                        fluid.log("Removed ", cleanupDef.name, " content...");
+                        promise.resolve();
+                    }, function (error) {
+                        fluid.log(fluid.logLevel.WARN, "Error removing ", cleanupDef.name, " content:", error);
                         promise.resolve();
                     });
                 }
@@ -264,6 +255,7 @@ fluid.testem.cleanup = function (stage, cleanupDefs, rimrafOptions) {
     return togo;
 };
 
+/* eslint-disable jsdoc/require-returns-check */
 /**
  *
  * Generate a unique subdirectory path based on a supplied prefix and suffix.
@@ -273,6 +265,7 @@ fluid.testem.cleanup = function (stage, cleanupDefs, rimrafOptions) {
  * @param {String} suffix - A "suffix" that will be appended to the end of the filename.
  * @return {String} - The full path to the unique subdirectory.
  */
+/* eslint-enable jsdoc/require-returns-check */
 fluid.testem.generateUniqueDirName = function (basePath, prefix, suffix) {
     try {
         var resolvedBasePath = fluid.testem.resolveFluidModulePathSafely(basePath);
@@ -318,11 +311,6 @@ fluid.testem.stopServer = function (that) {
     }
 };
 
-// An expander to allow us to toggle "HEADLESS" mode with an environment variable.
-fluid.testem.constructBrowserArgs = function (browserArgs, headlessBrowserArgs) {
-    return (process.env.HEADLESS && headlessBrowserArgs) || browserArgs;
-};
-
 /**
  *
  * Construct a full set of Testem proxy configuration options based on component options.
@@ -359,8 +347,44 @@ fluid.testem.constructProxies = function (sourceDirs, contentDirs, additionalPro
     return proxies;
 };
 
+fluid.testem.detectEnvironment = function (toMatch) {
+    var environmentValue = process.env.TESTEM_ENVIRONMENT;
+    if (!environmentValue) { return false; };
+
+    var toMatchRegexp = new RegExp(toMatch, "i");
+    return environmentValue.match(toMatchRegexp);
+};
+
+fluid.testem.detectEnvironment.minimalHeadless = function () {
+    return fluid.testem.detectEnvironment("headless");
+};
+
+fluid.testem.detectEnvironment.minimalHeaded = function () {
+    return fluid.testem.detectEnvironment("headed");
+};
+
+fluid.contextAware.makeChecks({
+    // predefined "environments"
+    "fluid.testem.detectEnvironment.minimalHeadless": "fluid.testem.detectEnvironment.minimalHeadless",
+    "fluid.testem.detectEnvironment.minimalHeaded": "fluid.testem.detectEnvironment.minimalHeaded"
+});
+
+fluid.defaults("fluid.testem.minimalHeadless", {
+    gradeNames: ["fluid.component"],
+    testemOptions: {
+        launch: "Headless Firefox,Headless Chrome"
+    }
+});
+
+fluid.defaults("fluid.testem.minimalHeaded", {
+    gradeNames: ["fluid.component"],
+    testemOptions: {
+        launch: "Firefox,Chrome"
+    }
+});
+
 fluid.defaults("fluid.testem.base", {
-    gradeNames:  ["fluid.component"],
+    gradeNames:  ["fluid.component", "fluid.contextAware"],
     coveragePort: 7003,
     coverageUrl: {
         expander: {
@@ -368,6 +392,22 @@ fluid.defaults("fluid.testem.base", {
             args:     ["http://localhost:%port", { port: "{that}.options.coveragePort" }]
         }
     },
+
+    contextAwareness: {
+        environment: {
+            checks: {
+                minimalHeaded: {
+                    contextValue: "{fluid.testem.detectEnvironment.minimalHeaded}",
+                    gradeNames: ["fluid.testem.minimalHeaded"]
+                },
+                minimalHeadless: {
+                    contextValue: "{fluid.testem.detectEnvironment.minimalHeadless}",
+                    gradeNames: ["fluid.testem.minimalHeadless"]
+                }
+            }
+        }
+    },
+
     cwd: process.cwd(),
     mergePolicy: {
         cleanup: "nomerge"
@@ -423,25 +463,13 @@ fluid.defaults("fluid.testem.base", {
             "--disable-new-zip-unpacker"
         ]
     },
-    "headlessBrowserArgs": {
-        "Firefox": [
-            "--no-remote",
-            "--headless"
-        ],
-        // See this ticket for details on the minimum options required to get "headless" Chrome working: https://github.com/testem/testem/issues/1106#issuecomment-298841383
-        "Chrome": [
-            "--disable-gpu",
-            "--headless",
-            "--remote-debugging-port=9222"
-        ]
-    },
     testemOptions: {
         // The timeout options and Chrome browser args are workaround to minimize "browser disconnect" errors.
         // https://github.com/testem/testem/issues/777
         browser_disconnect_timeout: 300, // Five minutes
         browser_start_timeout:      300,
         timeout: 300,
-        browser_args: "@expand:fluid.testem.constructBrowserArgs({that}.options.browserArgs, {that}.options.headlessBrowserArgs)",
+        browser_args: "{that}.options.browserArgs",
         framework:   "qunit",
         tap_quiet_logs: true,
         report_file: {
@@ -656,8 +684,7 @@ fluid.defaults("fluid.testem.instrumentation", {
     }
 });
 
-// The default grade, which instruments source, collects coverage data, and generates reports.
-fluid.defaults("fluid.testem", {
+fluid.defaults("fluid.testem.coverageReporting", {
     gradeNames:  ["fluid.testem.instrumentation"],
     reports: ["text-summary", "html", "json-summary"],
     cleanup: {
@@ -678,6 +705,31 @@ fluid.defaults("fluid.testem", {
                 cwd:         "{fluid.testem}.options.cwd",
                 reportsDir:  "{fluid.testem}.options.reportsDir",
                 reports:     "{fluid.testem}.options.reports"
+            }
+        }
+    }
+});
+
+
+fluid.testem.enableCoverage = function () {
+    return process.env.DISABLE_COVERAGE ? false : true;
+};
+
+fluid.contextAware.makeChecks({
+    // controls for instrumentation + coverage collection as well as coverage reporting.
+    "fluid.testem.enableCoverage": "fluid.testem.enableCoverage"
+});
+
+// The default grade, which supports an environment variable that disables instrumentation, coverage collection, and reporting.
+fluid.defaults("fluid.testem", {
+    gradeNames:  ["fluid.testem.base"],
+    contextAwareness: {
+        coverage: {
+            checks: {
+                enableCoverage: {
+                    contextValue: "{fluid.testem.enableCoverage}",
+                    gradeNames: ["fluid.testem.coverageReporting"]
+                }
             }
         }
     }

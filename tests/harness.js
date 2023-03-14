@@ -40,7 +40,7 @@ fluid.defaults("fluid.tests.testem.harness", {
         nm: "%fluid-testem/node_modules"
     },
     testemOptions: {
-        skip: "Safari,PhantomJS"
+        skip: "Safari,PhantomJS,IE,Brave,Opera"
     },
     listeners: {
         "onTestemStart.logTestemOptions": {
