@@ -45,8 +45,9 @@ fluid.testem.coverage.receiver.middlewareImpl = function (that, request, respons
 
     var testPath     = fluid.get(coveragePayload.document, "URL");
     var testFilename = testPath ? testPath.split("/").pop() : "unknown";
+    var timestamp    = Date.now();
 
-    var coverageFilename    = ["coverage", "-", browser.name, "-", browser.version, "-", testFilename, "-", that.id, "-", Math.round(Math.random() * 10000), ".json"].join("");
+    var coverageFilename    = ["coverage", browser.name, browser.version, testFilename, that.id, timestamp].join("-") + ".json";
     var coverageOutputPath  = path.join(resolvedCoverageDir, coverageFilename);
 
     fs.writeFile(coverageOutputPath, JSON.stringify(coveragePayload.coverage, null, 2), { encoding: "utf8"}, function (error) {
