@@ -13,27 +13,34 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x]
+        node-version: [16.x, 18.x]
 
     env:
       HEADLESS: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Node.js dependencies
         run: npm install
 
-      - name: Lint Code
-        run: npm run lint
-
       - name: Node Tests
         run: xvfb-run --auto-servernum npm test
 
+      - name: Archive Code Coverage Report
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: Code Coverage Report
+          path: reports/
+
       - name: Cleanup after xvfb
         uses: bcomnes/cleanup-xvfb@v1
+
+      - name: Lint Code
+        run: npm run lint

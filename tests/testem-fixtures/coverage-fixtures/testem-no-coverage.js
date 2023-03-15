@@ -25,7 +25,7 @@ var testemComponent = fluid.testem.base({
         }
     },
     testemOptions: {
-        skip: "Safari,PhantomJS"
+        skip: "Safari,PhantomJS,IE,Brave,Opera"
     }
 });
 
