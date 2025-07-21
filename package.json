@@ -38,7 +38,7 @@
     "devDependencies": {
         "eslint": "8.34.0",
         "eslint-config-fluid": "2.1.1",
-        "form-data": "4.0.0",
+        "form-data": "4.0.4",
         "fluid-lint-all": "1.2.6",
         "fluid-webdriver": "1.1.2",
         "kettle": "2.3.0",
